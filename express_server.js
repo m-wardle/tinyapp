@@ -59,7 +59,7 @@ function generateRandomString() {
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = "http://" + req.body.longURL;
+  urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
   res.statusCode = 303;
 });
