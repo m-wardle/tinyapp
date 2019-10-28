@@ -37,8 +37,13 @@ app.get("/urls", (req, res) => {
 })
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.render("urls_show", templateVars);
+  if (urlDatabase[req.params.shortURL]) {
+    let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+    res.render("urls_show", templateVars);
+  } else {
+    res.statusCode = 404;
+    res.send("Short URL not found! Please try again.");
+  }
 })
 
 function generateRandomString() {
@@ -55,10 +60,17 @@ app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = "http://" + req.body.longURL;
-  res.redirect(`/urls/${shortURL}`)
+  res.redirect(`/urls/${shortURL}`);
+  res.statusCode = 303;
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  if (urlDatabase[req.params.shortURL]) {
+    const longURL = urlDatabase[req.params.shortURL];
+    res.redirect(longURL);
+    res.statusCode = 303;
+  } else {
+    res.statusCode = 404;
+    res.send("Short URL not found! Please try again.");
+  }
 });
