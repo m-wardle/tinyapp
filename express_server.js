@@ -74,3 +74,8 @@ app.get("/u/:shortURL", (req, res) => {
     res.send("Short URL not found! Please try again.");
   }
 });
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
+})
