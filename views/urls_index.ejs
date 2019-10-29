@@ -26,13 +26,13 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
-            <td><form method="GET" action="/urls/<%= url %>/"><button>Edit</button></form></td>
-            <td><form method="POST" action="/urls/<%= url %>/delete"><button>Delete</button></form></td>
+            <td><form method="GET" action="/urls/<%= url %>/"><button class="btn btn-warning">Edit</button></form></td>
+            <td><form method="POST" action="/urls/<%= url %>/delete"><button class="btn btn-danger">Delete</button></form></td>
           </tr>
         <% } %>
       </tbody>
     </table>
-    <button><a href='/urls/new'>Add new URL</a></button>
+    <button class="btn btn-success"><a style="color: white;" href='/urls/new'>Add new URL</a></button>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
