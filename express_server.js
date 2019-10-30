@@ -25,16 +25,25 @@ const  generateRandomString = function() {
    return result;
 }
 
-const findEmail = function(str) {
-  let result = []
+const findUserByEmail = function(email) {
   for (let i in users) {
-    if (str === users[i].email) {
+    if (email === users[i].email) {
       return users[i].id;
     }
   }
 
   return false;
 };
+
+const findUserById = function(userId) {
+  for (let i in users) {
+    if (users[i].id === userId) {
+      return users[i]
+    }
+  }
+  
+  return false
+}
 
 app.get("/", (req, res) => {
   res.redirect("/urls")
@@ -53,8 +62,12 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { userInfo: users[req.cookies["user_id"]] }
-  res.render("urls_new", templateVars);
+  if (findUserById(req.cookies.user_id)) {
+    let templateVars = { userInfo: users[req.cookies["user_id"]] }
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login")
+  }
 });
 
 app.get("/urls", (req, res) => {
@@ -110,7 +123,7 @@ app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.statusCode = 400;
     res.send("Please enter a valid email and password.")
-  } else if (findEmail(req.body.email) === true) {
+  } else if (findUserByEmail(req.body.email) === true) {
     res.statusCode = 400;
     res.send("An account already exists with that email. Please try again, or log in to your account.")
   } else {
@@ -132,14 +145,14 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  if (!findEmail(req.body.email)) {
+  if (!findUserByEmail(req.body.email)) {
     res.statusCode = 403;
     res.send("Email not found. Please try again.");
-  } else if (req.body.password !== users[findEmail(req.body.email)].password) {
+  } else if (req.body.password !== users[findUserByEmail(req.body.email)].password) {
     res.statusCode = 403;
     res.send("Incorrect password. Please try again.");
   } else {
-    res.cookie("user_id", findEmail(req.body.email));
+    res.cookie("user_id", findUserByEmail(req.body.email));
     res.redirect("/urls")
   }
 })
