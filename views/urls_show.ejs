@@ -8,12 +8,13 @@
 
 <body>
   <% include ./partials/_header %>
+  <% if(userInfo) { %>
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
-        <button><a href='/urls/new'>Add new URL</a></button>
+        <button class="btn btn-success"><a href='/urls/new' style="color: white;">Add new URL</a></button>
       </div>
       <div class="card new-url">
           <h3 style="margin-left:auto; margin-right:auto">Edit</h3>
@@ -27,6 +28,17 @@
       </div>
     <div class="card-footer text-muted"></div>
   </div>
+  <% } else { %>
+    <div class="card text-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <h5 class="card-title">Hey! Either you're not logged in, or this URL doesn't belong to you 😡</h5>
+          <p class="card-text">Please <a href="/login">log in to the correct account</a> or <a href="/register">register</a> to view and edit your URLs.</p></p>
+        </div>
+      <div class="card-footer text-muted"></div>
+    </div>
+  <% } %>
+
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
