@@ -5,6 +5,11 @@ const bodyParser = require("body-parser");
 // const cookieParser = require("cookie-parser")
 const cookieSession = require('cookie-session')
 const bcrypt = require("bcrypt")
+const { findUserByEmail,
+        urlsForUserId,
+        generateRandomString,
+        findUserById
+  } = require("./helpers")
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -23,48 +28,6 @@ const urlDatabase = {
 
 const users = {};
 
-const urlsForUserId = function(id) {
-  let result = {};
-
-  for (let i in urlDatabase) {
-    if (urlDatabase[i].userID === id) {
-      result[i] = urlDatabase[i];
-    }
-  }
-
-  return result;
-}
-
-const  generateRandomString = function() {
-  let result = '';
-   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-   let charactersLength = characters.length;
-   for ( let i = 0; i < 6; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-   }
-   return result;
-}
-
-const findUserByEmail = function(email, usersObj) {
-  for (let i in usersObj) {
-    if (email === usersObj[i].email) {
-      return usersObj[i].id;
-    }
-  }
-
-  return false;
-};
-
-const findUserById = function(userId) {
-  for (let i in users) {
-    if (users[i].id === userId) {
-      return users[i]
-    }
-  }
-  
-  return false
-}
-
 app.get("/", (req, res) => {
   res.redirect("/urls")
 });
@@ -82,7 +45,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  if (findUserById(req.session.user_id)) {
+  if (findUserById(req.session.user_id, users)) {
     let templateVars = { userInfo: users[req.session.user_id] }
     res.render("urls_new", templateVars);
   } else {
@@ -91,7 +54,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlsForUserId(req.session.user_id), userInfo: users[req.session.user_id] };
+  let templateVars = { urls: urlsForUserId(req.session.user_id, urlDatabase), userInfo: users[req.session.user_id] };
   res.render("urls_index", templateVars);
 })
 
