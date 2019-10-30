@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser")
+const bcrypt = require("bcrypt")
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -37,11 +38,8 @@ const  generateRandomString = function() {
 }
 
 const findUserByEmail = function(email) {
-  console.log("TEST______ findUserByEmail start. email input: ", typeof email);
   for (let i in users) {
-    console.log("TEST 2: ", typeof users[i].email)
     if (email === users[i].email) {
-      console.log("returning users[i].id: ", users[i].id)
       return users[i].id;
     }
   }
@@ -153,7 +151,7 @@ app.post("/register", (req, res) => {
     users[userID] = {
     "id": userID,
     "email": req.body.email,
-    "password": req.body.password
+    "password": bcrypt.hashSync(req.body.password, 10)
     };
     res.cookie("user_id", userID);
     console.log(users);
@@ -170,7 +168,7 @@ app.post("/login", (req, res) => {
   if (!findUserByEmail(req.body.email)) {
     res.statusCode = 403;
     res.send("Email not found. Please try again.");
-  } else if (req.body.password !== users[findUserByEmail(req.body.email)].password) {
+  } else if (!bcrypt.compareSync(req.body.password, users[findUserByEmail(req.body.email)].password)) {
     res.statusCode = 403;
     res.send("Incorrect password. Please try again.");
   } else {
