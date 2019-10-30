@@ -29,6 +29,12 @@ const users = {};
 
 // Routes
 
+// Set up server
+
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -84,9 +90,19 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
+  // Getting readable date in dd/mm/yyyy format.
+  let today = new Date();
+  let dd = String(today.getDate()).padStart(2, '0');
+  let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  let yyyy = today.getFullYear();
+
+  today = dd + '/' + mm + '/' + yyyy;
+
   urlDatabase[shortURL] = {
     "longURL": req.body.longURL,
-    "userID": req.session.user_id
+    "userID": req.session.user_id,
+    "createTime": today,
+    "visitCount": 0
   };
   res.redirect(`/urls/${shortURL}`);
   res.statusCode = 303;
@@ -97,6 +113,7 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
+    urlDatabase[req.params.shortURL]["visitCount"]++;
     res.redirect(longURL);
     res.statusCode = 303;
   } else {
