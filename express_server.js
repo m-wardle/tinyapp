@@ -57,7 +57,12 @@ app.get("/urls/new", (req, res) => {
     res.render("urls_new", templateVars);
   } else {
     res.statusCode = 404;
-    let templateVars = {error1: "You are not logged in 😔", error2: "Please log in to create URLs.", userInfo: users[req.session.user_id], goHere: "/login"}
+    let templateVars = {
+      error1: "You are not logged in 😔",
+      error2: "Please log in to create URLs.",
+      userInfo: users[req.session.user_id],
+      goHere: "/login"
+    }
     res.render("error", templateVars);
   }
 });
@@ -74,14 +79,33 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   if (!findUserById(req.session.user_id, users)) {
     res.statusCode = 404;
-    let templateVars = {error1: "You are not logged in 😔", error2: "Please log in to view specific URLs.", userInfo: users[req.session.user_id], goHere: "/login"}
+    let templateVars = {
+      error1: "You are not logged in 😔",
+      error2: "Please log in to view specific URLs.",
+      userInfo: users[req.session.user_id],
+      goHere: "/login"
+    }
     res.render("error", templateVars);
+
   } else if (urlDatabase[req.params.shortURL]) {
-    let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], urlID: urlDatabase[req.params.shortURL]["userID"], userInfo: users[req.session.user_id] };
+    let templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL]["longURL"],
+      createTime: urlDatabase[req.params.shortURL]["createTime"],
+      visitCount: urlDatabase[req.params.shortURL]["visitCount"],
+      urlID: urlDatabase[req.params.shortURL]["userID"],
+      userInfo: users[req.session.user_id]
+    };
     res.render("urls_show", templateVars);
+
   } else {
     res.statusCode = 404;
-    let templateVars = {error1: "Short URL not found 🕵️‍♀️", error2: "Please try again 🔁", userInfo: users[req.session.user_id], goHere: "/urls"}
+    let templateVars = {
+    error1: "Short URL not found 🕵️‍♀️",
+    error2: "Please try again 🔁",
+    userInfo: users[req.session.user_id],
+    goHere: "/urls"
+  };
     res.render("error", templateVars);
   }
 });
@@ -118,7 +142,12 @@ app.get("/u/:shortURL", (req, res) => {
     res.statusCode = 303;
   } else {
     res.statusCode = 404;
-    let templateVars = {error1: "Short URL not found 🕵️‍♀️", error2: "Please try again 🔁", userInfo: users[req.session.user_id], goHere: "/urls"}
+    let templateVars = {
+      error1: "Short URL not found 🕵️‍♀️",
+      error2: "Please try again 🔁",
+      userInfo: users[req.session.user_id],
+      goHere: "/urls"
+    }
     res.render("error", templateVars);
   }
 });
@@ -128,7 +157,12 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   if (!findUserById(req.session.user_id, users)) {
     res.statusCode = 404;
-    let templateVars = {error1: "You are not logged in 😔", error2: "Please log in to create and edit URLs.", userInfo: users[req.session.user_id], goHere: "/login"}
+    let templateVars = {
+      error1: "You are not logged in 😔",
+      error2: "Please log in to create and edit URLs.",
+      userInfo: users[req.session.user_id],
+      goHere: "/login"
+    }
     res.render("error", templateVars);
   } else if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
     res.statusCode = 404;
@@ -166,11 +200,21 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.statusCode = 400;
-    let templateVars = {error1: "Whoops!", error2: "Please enter a valid username and password.", userInfo: users[req.session.user_id], goHere: "/register"}
+    let templateVars = {
+      error1: "Whoops!",
+      error2: "Please enter a valid username and password.",
+      userInfo: users[req.session.user_id],
+      goHere: "/register"
+    }
     res.render("error", templateVars);
   } else if (findUserByEmail(req.body.email, users)) {
     res.statusCode = 400;
-    let templateVars = {error1: "An account already exists with that email.", error2: "Please try again, or log in to your account.", userInfo: users[req.session.user_id], goHere: "/register"}
+    let templateVars = {
+      error1: "An account already exists with that email.",
+      error2: "Please try again, or log in to your account.",
+      userInfo: users[req.session.user_id],
+      goHere: "/register"
+    }
     res.render("error", templateVars);
   } else {
     let userID = generateRandomString();
@@ -203,11 +247,20 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   if (!findUserByEmail(req.body.email, users)) {
     res.statusCode = 403;
-    let templateVars = {error1: "Email not found 📩", error2: "Please try again.", userInfo: users[req.session.user_id], goHere: "/login"}
+    let templateVars = {error1: "Email not found 📩",
+      error2: "Please try again.",
+      userInfo: users[req.session.user_id],
+      goHere: "/login"
+    }
     res.render("error", templateVars);
   } else if (!bcrypt.compareSync(req.body.password, users[findUserByEmail(req.body.email, users)].password)) {
     res.statusCode = 403;
-    let templateVars = {error1: "Incorrect password 🔑", error2: "Please try again.", userInfo: users[req.session.user_id], goHere: "/login"}
+    let templateVars = {
+      error1: "Incorrect password 🔑",
+      error2: "Please try again.",
+      userInfo: users[req.session.user_id],
+      goHere: "/login"
+    }
     res.render("error", templateVars);
   } else {
     req.session.user_id = findUserByEmail(req.body.email, users);
