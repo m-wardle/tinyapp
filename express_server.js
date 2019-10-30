@@ -1,3 +1,5 @@
+// Require dependencies as necessary
+
 const express = require("express");
 const app = express();
 const PORT = 8080;
@@ -9,6 +11,8 @@ const { findUserByEmail,
   generateRandomString,
   findUserById
 } = require("./helpers");
+
+// Set variables
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -23,6 +27,14 @@ const urlDatabase = {
 
 const users = {};
 
+// Routes
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// Root directory redirects to URL index if logged in, otherwise prompts login
+
 app.get("/", (req, res) => {
   if (req.session.user_id) {
     res.redirect("/urls");
@@ -31,31 +43,27 @@ app.get("/", (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+// Checks login status/verify user before allowing for creation of a new URL. Error page if logged out with link to login.
 
 app.get("/urls/new", (req, res) => {
   if (findUserById(req.session.user_id, users)) {
     let templateVars = { userInfo: users[req.session.user_id] };
     res.render("urls_new", templateVars);
   } else {
-    res.redirect("/login");
+    res.statusCode = 404;
+    let templateVars = {error1: "You are not logged in 😔", error2: "Please log in to create URLs.", userInfo: users[req.session.user_id], goHere: "/login"}
+    res.render("error", templateVars);
   }
 });
+
+// URLs index has its own check for login status within its template.
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlsForUserId(req.session.user_id, urlDatabase), userInfo: users[req.session.user_id] };
   res.render("urls_index", templateVars);
 });
+
+// Checks first if correct user is logged in, if user is logged in and shortURL is correct, presents page. Otherwise, renders error page.
 
 app.get("/urls/:shortURL", (req, res) => {
   if (!findUserById(req.session.user_id, users)) {
@@ -72,17 +80,19 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
+// Adds new URL to database.
+
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     "longURL": req.body.longURL,
     "userID": req.session.user_id
   };
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
   res.statusCode = 303;
 });
+
+// If shortURL exists, links to the shortened website. If not, renders error page.
 
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
@@ -95,6 +105,8 @@ app.get("/u/:shortURL", (req, res) => {
     res.render("error", templateVars);
   }
 });
+
+// Checks first if correct user is logged in, then whether they own the shortURL requested. If everything is ok, updates URL.
 
 app.post("/urls/:shortURL", (req, res) => {
   if (!findUserById(req.session.user_id, users)) {
@@ -109,6 +121,9 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls');
 });
 
+// Checks if current user owns requested URL. If not, send a message. 
+// Don't use error page since this would likely be executed via a tool like cURL.
+
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
@@ -117,6 +132,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     res.send("You don't have the proper permissions to do that!\n😡 Don't 😡 delete 😡 other 😡 people's 😡 links 😡\n");
   }
 });
+
+// If user is logged in, redirects to /urls since there's no need to register. Otherwise, renders registration.
 
 app.get("/register", (req, res) => {
   if (req.session.user_id) {
@@ -128,6 +145,7 @@ app.get("/register", (req, res) => {
   }
 });
 
+// Checks for no email/password and existing email. If everything is OK, adds new user to database and creates cookie.
 app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.statusCode = 400;
@@ -151,6 +169,8 @@ app.post("/register", (req, res) => {
   }
 });
 
+// Redirects to URL index if user is logged in already, otherwise renders login.
+
 app.get("/login", (req, res) => {
   if (req.session.user_id) {
     res.statusCode = 302;
@@ -160,6 +180,8 @@ app.get("/login", (req, res) => {
     res.render("login", templateVars);
   }
 });
+
+// Checks if email exists, then if password matches (rendering appropriate error pages). If both match, send to URLs.
 
 app.post("/login", (req, res) => {
   if (!findUserByEmail(req.body.email, users)) {
@@ -175,6 +197,8 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
   }
 });
+
+// Clear cookies and logout.
 
 app.post("/logout", (req, res) => {
   req.session = null;
