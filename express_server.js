@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-// const cookieParser = require("cookie-parser")
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcrypt");
 const { findUserByEmail,
@@ -13,13 +12,9 @@ const { findUserByEmail,
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cookieParser())
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2'],
-
-  // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
 const urlDatabase = {
@@ -65,13 +60,15 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   if (!findUserById(req.session.user_id, users)) {
     res.statusCode = 404;
-    res.send("Please <a href='/login'>log in</a> to view specific URLs.");
+    let templateVars = {error1: "You are not logged in 😔", error2: "Please log in to view specific URLs.", userInfo: users[req.session.user_id], goHere: "/login"}
+    res.render("error", templateVars);
   } else if (urlDatabase[req.params.shortURL]) {
     let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], urlID: urlDatabase[req.params.shortURL]["userID"], userInfo: users[req.session.user_id] };
     res.render("urls_show", templateVars);
   } else {
     res.statusCode = 404;
-    res.send("Short URL not found! Please try again.");
+    let templateVars = {error1: "Short URL not found 🕵️‍♀️", error2: "Please try again 🔁", userInfo: users[req.session.user_id], goHere: "/urls"}
+    res.render("error", templateVars);
   }
 });
 
@@ -94,14 +91,16 @@ app.get("/u/:shortURL", (req, res) => {
     res.statusCode = 303;
   } else {
     res.statusCode = 404;
-    res.send("Short URL not found! Please try again.");
+    let templateVars = {error1: "Short URL not found 🕵️‍♀️", error2: "Please try again 🔁", userInfo: users[req.session.user_id], goHere: "/urls"}
+    res.render("error", templateVars);
   }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   if (!findUserById(req.session.user_id, users)) {
     res.statusCode = 404;
-    res.send("Please <a href='/login'>log in</a> to create and edit URLs.");
+    let templateVars = {error1: "You are not logged in 😔", error2: "Please log in to create and edit URLs.", userInfo: users[req.session.user_id], goHere: "/login"}
+    res.render("error", templateVars);
   } else if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
     res.statusCode = 404;
     res.send("You don't have the proper permissions to edit that.\nEither <a href='/login'>log in</a> to the correct account, or <a href='/urls'>go back.</a>\n");
@@ -132,10 +131,12 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.statusCode = 400;
-    res.send("Please enter a valid email and password.");
+    let templateVars = {error1: "Whoops!", error2: "Please enter a valid username and password.", userInfo: users[req.session.user_id], goHere: "/register"}
+    res.render("error", templateVars);
   } else if (findUserByEmail(req.body.email, users)) {
     res.statusCode = 400;
-    res.send("An account already exists with that email. Please try again, or log in to your account.");
+    let templateVars = {error1: "An account already exists with that email.", error2: "Please try again, or log in to your account.", userInfo: users[req.session.user_id], goHere: "/register"}
+    res.render("error", templateVars);
   } else {
     let userID = generateRandomString();
     users[userID] = {
@@ -143,7 +144,7 @@ app.post("/register", (req, res) => {
       "email": req.body.email,
       "password": bcrypt.hashSync(req.body.password, 10)
     };
-    // res.cookie("user_id", userID);
+
     req.session.user_id = userID;
     console.log(users);
     res.redirect("/urls");
@@ -163,10 +164,12 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   if (!findUserByEmail(req.body.email, users)) {
     res.statusCode = 403;
-    res.send("Email not found. Please <a href='/login'>try again.</a>");
+    let templateVars = {error1: "Email not found 📩", error2: "Please try again.", userInfo: users[req.session.user_id], goHere: "/login"}
+    res.render("error", templateVars);
   } else if (!bcrypt.compareSync(req.body.password, users[findUserByEmail(req.body.email, users)].password)) {
     res.statusCode = 403;
-    res.send("Incorrect password. Please <a href='/login'>try again.</a>");
+    let templateVars = {error1: "Incorrect password 🔑", error2: "Please try again.", userInfo: users[req.session.user_id], goHere: "/login"}
+    res.render("error", templateVars);
   } else {
     req.session.user_id = findUserByEmail(req.body.email, users);
     res.redirect("/urls");

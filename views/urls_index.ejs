@@ -6,7 +6,7 @@
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
+  <title>TinyApp - URLs</title>
 </head>
 <body>
   <% include ./partials/_header %>
@@ -37,7 +37,7 @@
     <button class="btn btn-success"><a style="color: white;" href='/urls/new'>Add new URL</a></button>
   </main>
   <% } else { %>
-  <main>
+  <main class="card text-center">
     <h4>Hey! You're not logged in...</h4>
     <p>Please <a href="/login">log in</a> or <a href="/register">register</a> to view URLs.</p>
   </main>
