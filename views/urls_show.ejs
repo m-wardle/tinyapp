@@ -8,7 +8,8 @@
 
 <body>
   <% include ./partials/_header %>
-  <% if(userInfo) { %>
+  <% console.log(userInfo.id, urlID) %>
+  <% if(userInfo.id === urlID) { %>
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
