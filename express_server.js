@@ -45,10 +45,10 @@ const  generateRandomString = function() {
    return result;
 }
 
-const findUserByEmail = function(email) {
-  for (let i in users) {
-    if (email === users[i].email) {
-      return users[i].id;
+const findUserByEmail = function(email, usersObj) {
+  for (let i in usersObj) {
+    if (email === usersObj[i].email) {
+      return usersObj[i].id;
     }
   }
 
@@ -151,7 +151,7 @@ app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.statusCode = 400;
     res.send("Please enter a valid email and password.")
-  } else if (findUserByEmail(req.body.email)) {
+  } else if (findUserByEmail(req.body.email, users)) {
     res.statusCode = 400;
     res.send("An account already exists with that email. Please try again, or log in to your account.")
   } else {
@@ -174,21 +174,19 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  if (!findUserByEmail(req.body.email)) {
+  if (!findUserByEmail(req.body.email, users)) {
     res.statusCode = 403;
     res.send("Email not found. Please try again.");
-  } else if (!bcrypt.compareSync(req.body.password, users[findUserByEmail(req.body.email)].password)) {
+  } else if (!bcrypt.compareSync(req.body.password, users[findUserByEmail(req.body.email, users)].password)) {
     res.statusCode = 403;
     res.send("Incorrect password. Please try again.");
   } else {
-    // res.cookie("user_id", findUserByEmail(req.body.email));
-    req.session.user_id = findUserByEmail(req.body.email);
+    req.session.user_id = findUserByEmail(req.body.email, users);
     res.redirect("/urls")
   }
 })
 
 app.post("/logout", (req, res) => {
-  // res.clearCookie("user_id");
   req.session = null;
   res.redirect("back");
 })
