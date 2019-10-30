@@ -172,15 +172,20 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls');
 });
 
-// Checks if current user owns requested URL. If not, send a message. 
-// Don't use error page since this would likely be executed via a tool like cURL.
+// Checks if current user owns requested URL. If not, render an error.
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.send("You don't have the proper permissions to do that!\n😡 Don't 😡 delete 😡 other 😡 people's 😡 links 😡\n");
+    let templateVars = {
+      error1: "You don't have the proper permissions to do that!",
+      error2: "😡 Don't 😡 delete 😡 other 😡 people's 😡 links 😡",
+      userInfo: users[req.session.user_id],
+      goHere: "/login"
+    }
+    res.render("error", templateVars);
   }
 });
 
