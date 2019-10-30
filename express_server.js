@@ -134,7 +134,7 @@ app.post("/urls/:shortURL", (req, res) => {
     res.statusCode = 404;
     res.send("You don't have the proper permissions to edit that.\nEither <a href='/login'>log in</a> to the correct account, or <a href='/urls'>go back.</a>\n");
   }
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
   res.redirect('/urls');
 });
 
