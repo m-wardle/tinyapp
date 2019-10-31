@@ -11,7 +11,7 @@ const morgan = require('morgan');
 const { findUserByEmail,
   urlsForUserId,
   generateRandomString,
-  findUserById
+  findUserById,
 } = require('./helpers');
 
 // Set variables
@@ -21,6 +21,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2'],
+
+  expires: new Date(Date.now() + 6.307e10) 
 }));
 app.use(morgan('dev'));
 app.use(methodOverride('_method'));
@@ -97,6 +99,7 @@ app.get("/urls/:shortURL", (req, res) => {
       longURL: urlDatabase[req.params.shortURL]["longURL"],
       createTime: urlDatabase[req.params.shortURL]["createTime"],
       visitCount: urlDatabase[req.params.shortURL]["visitCount"],
+      uniqueVisitors: Object.keys(urlDatabase[req.params.shortURL].analytics).length,
       urlID: urlDatabase[req.params.shortURL]["userID"],
       userInfo: users[req.session.user_id]
     };
@@ -130,7 +133,8 @@ app.post("/urls", (req, res) => {
     "longURL": req.body.longURL,
     "userID": req.session.user_id,
     "createTime": today,
-    "visitCount": 0
+    "visitCount": 0,
+    "analytics": {}
   };
   res.redirect(`/urls/${shortURL}`);
   res.statusCode = 303;
@@ -141,6 +145,17 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
+
+    if (req.session[req.params.shortURL]) {
+      urlDatabase[req.params.shortURL]["analytics"][req.session[req.params.shortURL]]["counter"]++
+    } else {
+      let linkCookie = generateRandomString();
+      req.session[req.params.shortURL] = linkCookie;
+      urlDatabase[req.params.shortURL]["analytics"][linkCookie] = {};
+      urlDatabase[req.params.shortURL]["analytics"][linkCookie]["counter"] = 1;
+    }
+    console.log(urlDatabase[req.params.shortURL].analytics);
+    
     urlDatabase[req.params.shortURL]["visitCount"]++;
     if(longURL.match(/https/g) || longURL.match(/http/g)){
     res.redirect(longURL);
@@ -283,6 +298,6 @@ app.post("/login", (req, res) => {
 // Clear cookies and logout.
 
 app.post("/logout", (req, res) => {
-  req.session = null;
+  req.session.user_id = null;
   res.redirect("back");
 });

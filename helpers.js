@@ -42,10 +42,20 @@ const  generateRandomString = function() {
    return result;
 }
 
+const analyticsCheck = function(shortURL, database, cookie) {
+  if (req.session[shortURL]) {
+    database[shortURL]["analytics"][req.session[shortURL]]["counter"]++
+  } else {
+    let linkCookie = generateRandomString();
+    req.session[shortURL] = linkCookie;
+    database[shortURL]["analytics"][linkCookie]["counter"] = 1;
+  }
+}
+
 
 module.exports = {
   findUserByEmail,
   urlsForUserId,
   findUserById,
-  generateRandomString
+  generateRandomString,
 }
