@@ -147,7 +147,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
 
-    // Unique visitor logic
+    // Unique visitor logic and analytics
 
     if (req.session[req.params.shortURL]) {
       urlDatabase[req.params.shortURL]["analytics"][req.session[req.params.shortURL]]["counter"]++;
