@@ -138,8 +138,12 @@ app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
     urlDatabase[req.params.shortURL]["visitCount"]++;
+    if(longURL.match(/https/g) || longURL.match(/http/g)){
     res.redirect(longURL);
     res.statusCode = 303;
+    } else {
+      res.redirect('https://' + longURL)
+    }
   } else {
     res.statusCode = 404;
     let templateVars = {
