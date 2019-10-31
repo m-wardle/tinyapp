@@ -230,7 +230,6 @@ app.post("/register", (req, res) => {
     };
 
     req.session.user_id = userID;
-    console.log(users);
     res.redirect("/urls");
   }
 });
