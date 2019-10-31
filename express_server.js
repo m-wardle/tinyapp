@@ -1,28 +1,32 @@
 // Require dependencies as necessary
 
-const express = require("express");
+const express = require('express');
 const app = express();
 const PORT = 8080;
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
+const methodOverride = require('method-override')
+const morgan = require('morgan');
 const { findUserByEmail,
   urlsForUserId,
   generateRandomString,
   findUserById
-} = require("./helpers");
+} = require('./helpers');
 
 // Set variables
 
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2'],
 }));
+app.use(morgan('dev'));
+app.use(methodOverride('_method'));
 
 const urlDatabase = {
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+  i3BoGr: { longURL: 'https://www.google.ca', userID: 'aJ48lW' }
 };
 
 const users = {};
@@ -158,7 +162,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Checks first if correct user is logged in, then whether they own the shortURL requested. If everything is ok, updates URL.
 
-app.post("/urls/:shortURL", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   if (!findUserById(req.session.user_id, users)) {
     res.statusCode = 404;
     let templateVars = {
@@ -178,7 +182,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // Checks if current user owns requested URL. If not, render an error.
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
