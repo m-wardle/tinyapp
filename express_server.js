@@ -101,7 +101,8 @@ app.get("/urls/:shortURL", (req, res) => {
       visitCount: urlDatabase[req.params.shortURL]["visitCount"],
       uniqueVisitors: Object.keys(urlDatabase[req.params.shortURL].analytics).length,
       urlID: urlDatabase[req.params.shortURL]["userID"],
-      userInfo: users[req.session.user_id]
+      userInfo: users[req.session.user_id],
+      analytics: urlDatabase[req.params.shortURL].analytics
     };
     res.render("urls_show", templateVars);
 
@@ -146,16 +147,26 @@ app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
 
+    // Unique visitor logic
+
     if (req.session[req.params.shortURL]) {
-      urlDatabase[req.params.shortURL]["analytics"][req.session[req.params.shortURL]]["counter"]++
+      urlDatabase[req.params.shortURL]["analytics"][req.session[req.params.shortURL]]["counter"]++;
+      let now = Date.now();
+      now = new Date(now);
+      now = now.toLocaleString('en-CA', { timeZone: 'America/New_York' })
+      urlDatabase[req.params.shortURL]["analytics"][req.session[req.params.shortURL]]["visitTimes"].push(now)
     } else {
       let linkCookie = generateRandomString();
       req.session[req.params.shortURL] = linkCookie;
       urlDatabase[req.params.shortURL]["analytics"][linkCookie] = {};
       urlDatabase[req.params.shortURL]["analytics"][linkCookie]["counter"] = 1;
+      urlDatabase[req.params.shortURL]["analytics"][linkCookie]["visitTimes"] = [];
+      let now = Date.now();
+      now = new Date(now);
+      now = now.toLocaleString('en-CA', { timeZone: 'America/New_York' })
+      urlDatabase[req.params.shortURL]["analytics"][linkCookie]["visitTimes"].push(now)
     }
-    console.log(urlDatabase[req.params.shortURL].analytics);
-    
+ 
     urlDatabase[req.params.shortURL]["visitCount"]++;
     if(longURL.match(/https/g) || longURL.match(/http/g)){
     res.redirect(longURL);

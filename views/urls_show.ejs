@@ -18,7 +18,7 @@
         <p class="card-text">Date Created: <%= createTime %></a></p>
         <p class="card-text">Times Used: <%= visitCount %></a></p>
         <p class="card-text">Unique visitors: <%= uniqueVisitors || 0 %></a></p>
-        <button class="btn btn-success"><a href='/urls/new' style="color: white;">Add new URL</a></button>
+        <a class="btn btn-success" href='/urls/new' style="color: white;">Add new URL</a>
       </div>
       <div class="card new-url">
           <h3 style="margin-left:auto; margin-right:auto">Edit</h3>
@@ -29,6 +29,27 @@
               <button type="submit" class="btn btn-primary">Submit</button>
             </div>
           </form>
+      </div>
+      <h3 style="margin-left:auto; margin-right: auto; ">Visitor Info</h3>
+      <div class="table-wrapper-scroll-y my-custom-scrollbar" style="height: 300px; overflow: auto;">
+          <table class="table table-bordered table-striped mb-0">
+            <thead>
+              <tr>
+                  <th scope="col" class="w-25">Unique ID</th>
+                  <th scope="col">Time of Visit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for(let user in analytics) { %> 
+                <% for(let timestamp of analytics[user].visitTimes) { %>
+                  <tr>
+                      <td><%= user %></td>
+                      <td><%= timestamp %></td>
+                  </tr>
+                <% } %>
+              <% } %>
+            </tbody>
+          </table>
       </div>
     <div class="card-footer text-muted"></div>
   </div>
