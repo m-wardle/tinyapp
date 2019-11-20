@@ -2,7 +2,7 @@
   "name": "tinyapp",
   "version": "1.0.0",
   "engines": {
-    "node": "12.13.0"
+    "node": "8.9.4"
   },
   "description": "",
   "main": "express_server.js",
