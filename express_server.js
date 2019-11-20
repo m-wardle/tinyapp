@@ -37,7 +37,7 @@ const users = {};
 
 // Set up server
 
-app.listen(PORT, () => {
+app.listen(port, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
