@@ -38,7 +38,7 @@ const users = {};
 // Set up server
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Example app listening on port ${port}!`);
 });
 
 app.get("/urls.json", (req, res) => {
