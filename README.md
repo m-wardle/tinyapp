@@ -29,4 +29,4 @@ URL creation page.
 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `node express_server.js` command.
-- Or... ["Visit TinyApp on Heroku!"](https://tinyapp-mwtest.herokuapp.com/)
+- Or... [visit TinyApp on Heroku!](https://tinyapp-mwtest.herokuapp.com/)
